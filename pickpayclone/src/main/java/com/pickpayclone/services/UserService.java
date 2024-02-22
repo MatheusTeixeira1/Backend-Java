@@ -1,12 +1,14 @@
 package com.pickpayclone.services;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pickpayclone.domain.User;
 import com.pickpayclone.domain.UserType;
+import com.pickpayclone.dtos.UserDTO;
 import com.pickpayclone.repositories.UserRepository;
 
 @Service
@@ -30,5 +32,14 @@ public class UserService {
 	
 	public void saveUser(User user) {
 		this.reposiory.save(user);
+	}
+	public User createUser(UserDTO data) {
+		User newUser = new User(data);
+		this.saveUser(newUser);
+		return newUser;
+	}
+	
+	public List<User> getAllUsers(){
+		return this.reposiory.findAll();
 	}
 }

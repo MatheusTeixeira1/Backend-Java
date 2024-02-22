@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +26,10 @@ public class TransactionService {
 	@Autowired
 	private RestTemplate restTemplate;
 	
-	public void crateTransaction(TransactionDTO transaction) throws Exception {
+	@Autowired
+	private NotificationService notificationService;
+	
+	public Transaction createTransaction(TransactionDTO transaction) throws Exception {
 		User sender = this.userService.findUserById(transaction.senderId());
 		User reciver = this.userService.findUserById(transaction.reciverId());
 		userService.validateTransaction(sender, transaction.value());
@@ -49,6 +51,11 @@ public class TransactionService {
 		this.repository.save(newTransaction);
 		this.userService.saveUser(sender);
 		this.userService.saveUser(reciver);
+		
+		this.notificationService.sendNotification(sender, "Transação realizada com sucesso");
+		this.notificationService.sendNotification(reciver, "Transação recebida com sucesso");
+		
+		return newTransaction;
 	}
 	public boolean authorizateTransaction(User sender, BigDecimal value) {
 		ResponseEntity<Map> authorizationResponse= restTemplate.getForEntity("https://run.mocky.io/v3/5794d450-d2e2-4412-8131-73d0293ac1cc", Map.class);

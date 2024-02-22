@@ -2,6 +2,8 @@ package com.pickpayclone.domain;
 
 import java.math.BigDecimal;
 
+import com.pickpayclone.dtos.UserDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,14 +12,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 @Entity(name="users")
 @Table(name="users")
 @AllArgsConstructor
 @EqualsAndHashCode(of="id")
 public class User {
+	public User() {
+		
+	}
+	
+	public User(UserDTO data) {
+		this.firstName = data.firstName();
+		this.lastName = data.lastName();
+		this.balance = data.balance();
+		this.userType = data.userType();
+		this.password = data.password();
+		this.document = data.document();
+		this.email = data.email();
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
