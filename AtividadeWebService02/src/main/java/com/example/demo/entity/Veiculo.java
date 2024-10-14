@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 public class Veiculo {
@@ -11,8 +12,11 @@ public class Veiculo {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private String descricao;
+	@NotEmpty(message="O modelo deve ser informado!")
 	private String modelo;
+	@NotEmpty(message="A cor deve ser informado!")
 	private String cor;
+	@NotEmpty(message="O preço deve ser informado!")
 	private String preco;
 	
 	public Veiculo() {
