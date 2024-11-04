@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD de Pessoas</title>
+    <style>
+        #person-list {
+            margin-top: 20px;
+        }
+        #person-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestão de Pessoas</h1>
+
+    <!-- Formulário para Incluir e Atualizar 
+     
+    
+    <form id="personForm">
+        <h3>Inserir e Atualizar Pessoa</h3>
+        <label for="id">ID (para atualizar):</label>
+        <input type="number" id="id" name="id">
+        <br><br>
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+        <br><br>
+        <button type="submit">Enviar</button>
+    </form>
+    -->
+    <form id="patriForm">
+        <h3>Inserir e Atualizar Pessoa</h3>
+        <label for="id">Id:</label>
+        <input type="number" id="id" name="id"><br><br>
+        <label for="CodBem">CodBem:</label>
+        <input type="number" id="CodBem" name="CodBem">
+        <br><br>
+        <label for="decricao">Decricao:</label>
+        <input type="text" id="decricao" name="decricao" required>
+        <br><br>
+        <label for="detalhamento">Detalhamento:</label>
+        <input type="text" id="detalhamento" name="detalhamento" required>
+        <br><br>
+        <label for="preco">Preço:</label>
+        <input type="number" id="preco" name="preco" required>
+        
+        <br><br>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <h3>Lista de Pessoas</h3>
+    <ul id="patri-list"></ul>
+
+    <script>
+        const apiUrl = 'http://localhost:8080/patrimonio';
+
+        // Função para listar pessoas
+        // async: Define uma função assíncrona que sempre retorna uma Promise
+        async function listarPessoas() {
+            try {
+                // await: Pausa a execução da função até que a promise (Um objeto que representa a eventual conclusão ou falha de uma operação assíncrona) 
+                //        seja resolvida ou rejeitada,
+                console.log('Ponto I')
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Erro: ${response.status}`);
+                console.log('Ponto II')
+                // await: Pausa a execução da função até que a promise seja resolvida ou rejeitada,
+                const patrimonios = await response.json();
+                console.log('Ponto III')
+                console.log(patrimonios)
+                const patrimonioList = document.getElementById('patri-list');
+                patrimonioList.innerHTML = '';
+                
+                patrimonios.forEach(patrimonio => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${patrimonio.id} - ${patrimonio.codBem} - ${patrimonio.descricao} - ${patrimonio.detalhamento} - ${patrimonio.preco}`;
+                    
+                    // Botão de excluir para cada pessoa
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Excluir';
+                    deleteButton.onclick = () => excluirPessoa(patrimonio.id);
+                    listItem.appendChild(deleteButton);
+
+                    // Botão de editar para cada pessoa
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Editar';
+                    editButton.onclick = () => editarPessoa(patrimonio);
+                    listItem.appendChild(editButton);
+
+                    patrimonioList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Erro ao listar pessoas:', error);
+            }
+        }
+
+        // Função para incluir ou atualizar uma pessoa
+        document.getElementById('patriForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('id').value;
+            const codBem = document.getElementById('codBem').value;
+            const descricao = document.getElementById('descricao').value;
+            const detalhamento = document.getElementById('detalhamento').value;
+            const preco = document.getElementById('preco').value;
+            const patrimonio = { codBem: codBem, descricao: descricao, detalhamento: detalhamento, preco: preco };
+
+            try {
+                let response;
+                if (id) {
+                    // Atualizar pessoa (PUT)
+                    response = await fetch(`${apiUrl}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(patrimonio)
+                    });
+                } else {
+                    // Incluir pessoa (POST)
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(patrimonio)
+                    });
+                }
+
+                if (!response.ok) throw new Error(`Erro: ${response.status}`);
+                listarPessoas();
+                document.getElementById('patriForm').reset();
+            } catch (error) {
+                console.error('Erro ao salvar pessoa:', error);
+            }
+        });
+
+        // Função para excluir pessoa
+        async function excluirPessoa(id) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error(`Erro ao excluir: ${response.status}`);
+                listarPessoas();
+            } catch (error) {
+                console.error('Erro ao excluir pessoa:', error);
+            }
+        }
+
+        // Função para carregar dados no formulário para edição
+        function editarPessoa(patrimonio) {
+            document.getElementById('codBem').value = patrimonio.codBem;
+            document.getElementById('descricao').value = patrimonio.descricao;
+            document.getElementById('detalhamento').value = patrimonio.detalhamento;
+            document.getElementById('preco').value = patrimonio.preco;
+        }
+
+        // Chama a função para listar pessoas ao carregar a página
+        window.onload = listarPessoas;
+    </script>
+</body>
+</html>
